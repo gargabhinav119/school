@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import TopNavbar from "@/components/TopNavbar";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
-import { useAdmin } from "@/app/context/AdminContext";
+import TopNavbar from "../../components/TopNavbar";
+import Footer from "../../components/Footer";
+import FloatingButtons from "../../components/FloatingButtons";
+import { useAdmin } from "../context/AdminContext";
 import Link from "next/link";
 import { 
   GraduationCap, 
