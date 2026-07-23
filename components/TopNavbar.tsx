@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Menu, X, Phone, Mail, Calendar, Award, LogOut, Shield, Edit } from "lucide-react";
+import { Menu, X, Phone, Mail, Calendar, Award, LogOut, Shield, Edit, Loader2 } from "lucide-react";
 import { useAdmin } from "@/app/context/AdminContext";
 
 const TopNavbar = () => {
@@ -10,7 +10,8 @@ const TopNavbar = () => {
   const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [settings, setSettings] = useState<any>({});
+  const [settings, setSettings] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 30);
@@ -22,9 +23,14 @@ const TopNavbar = () => {
     fetch("/api/settings")
       .then(res => res.json())
       .then(res => {
-        if (res.success) setSettings(res.data);
+        if (res.success) {
+          setSettings(res.data);
+        }
+        setIsLoading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const navItems = [
@@ -34,7 +40,7 @@ const TopNavbar = () => {
     { name: "Academics", href: "/academics" },
     { name: "Result", href: "/result" },
     { name: "Circulars", href: "/circulars" },
-    { name: "Admission Query", href: "/admission-query" },
+    // { name: "Admission Query", href: "/admission-query" },
     { name: "Activities", href: "/activities" },
     { name: "Mandatory Disclosure", href: "/mandatory-disclosure" },
     { name: "Contact Us", href: "/contact-us" },
@@ -57,7 +63,6 @@ const TopNavbar = () => {
             {/* ===== LEFT - LOGO + CBSE + Since ===== */}
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2 group">
-                {/* ✅ LOGO IMAGE */}
                 <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-lg group-hover:shadow-[#D4AF37]/30 transition-all duration-300 overflow-hidden border border-gray-100">
                   <img 
                     src="/images/logo.png" 
@@ -90,18 +95,45 @@ const TopNavbar = () => {
             {/* ===== RIGHT - Dynamic Contact Info + Admin + Apply ===== */}
             <div className="hidden lg:flex items-center gap-4">
               <div className="flex items-center gap-3 text-xs text-gray-500">
+                {/* ✅ Admission Text - Show loading state */}
                 <div className="flex items-center gap-1.5 bg-[#D4AF37]/5 px-3 py-1 rounded-full border border-[#D4AF37]/10">
                   <Calendar size={12} className="text-[#D4AF37]" />
-                  <span className="font-medium text-[#0B2447]">{settings.admissionText || 'Admissions Open 2027-28'}</span>
+                  {isLoading ? (
+                    <span className="font-medium text-[#0B2447] flex items-center gap-1">
+                      <Loader2 size={10} className="animate-spin" /> Loading...
+                    </span>
+                  ) : (
+                    <span className="font-medium text-[#0B2447]">
+                      {settings?.admissionText || 'Admissions Open 2027-28'}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-1.5 hover:text-[#D4AF37] transition-colors cursor-pointer">
-                  <Phone size={12} className="text-[#D4AF37]" />
-                  <span className="font-medium">{settings.phone || '+91 98765 43210'}</span>
-                </div>
-                <div className="flex items-center gap-1.5 hover:text-[#D4AF37] transition-colors cursor-pointer">
-                  <Mail size={12} className="text-[#D4AF37]" />
-                  <span className="font-medium">{settings.email || 'info@agrasen.edu.in'}</span>
-                </div>
+
+                {/* ✅ Phone - Show loading state */}
+                {isLoading ? (
+                  <div className="flex items-center gap-1.5">
+                    <Phone size={12} className="text-[#D4AF37]" />
+                    <span className="font-medium text-gray-400">Loading...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 hover:text-[#D4AF37] transition-colors cursor-pointer">
+                    <Phone size={12} className="text-[#D4AF37]" />
+                    <span className="font-medium">{settings?.phone || '+91 98765 43210'}</span>
+                  </div>
+                )}
+
+                {/* ✅ Email - Show loading state */}
+                {isLoading ? (
+                  <div className="flex items-center gap-1.5">
+                    <Mail size={12} className="text-[#D4AF37]" />
+                    <span className="font-medium text-gray-400">Loading...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 hover:text-[#D4AF37] transition-colors cursor-pointer">
+                    <Mail size={12} className="text-[#D4AF37]" />
+                    <span className="font-medium">{settings?.email || 'info@agrasen.edu.in'}</span>
+                  </div>
+                )}
               </div>
 
               {/* ===== ADMIN BUTTONS ===== */}
@@ -192,8 +224,14 @@ const TopNavbar = () => {
         <div className="lg:hidden bg-white border-t border-gray-100/50 shadow-xl max-h-[80vh] overflow-y-auto">
           <div className="max-w-7xl mx-auto px-4 py-3">
             <div className="flex flex-col gap-1.5 pb-2 border-b border-gray-100/50 text-xs text-gray-500">
-              <div className="flex items-center gap-2"><Phone size={12} className="text-[#D4AF37]" /> {settings.phone || '+91 98765 43210'}</div>
-              <div className="flex items-center gap-2"><Mail size={12} className="text-[#D4AF37]" /> {settings.email || 'info@agrasen.edu.in'}</div>
+              <div className="flex items-center gap-2">
+                <Phone size={12} className="text-[#D4AF37]" /> 
+                {isLoading ? 'Loading...' : (settings?.phone || '+91 98765 43210')}
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail size={12} className="text-[#D4AF37]" /> 
+                {isLoading ? 'Loading...' : (settings?.email || 'info@agrasen.edu.in')}
+              </div>
             </div>
 
             {!isAdmin ? (
